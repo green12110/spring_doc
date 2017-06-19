@@ -1,0 +1,364 @@
+Spring的bean管理（注解）
+
+一spring注解开发准备
+1 导入jar包  aop  jar包与注解相关
+2 创建类和方法
+   public  class User(){
+public void add(){
+  Syso(“add……”)
+}
+}
+3 创建spring配置文件，
+（1）引入约束（基本约束spring-beans 注解约束spring-context）
+（2）开启注解扫描
+     // base-package写要标识注解的类
+     <context:componet-scan   base-package=”cn.itcast.anno”></ context:componet-scan>
+     <context:componet-scan   base-package=”cn”></ context:componet-scan>
+
+
+二 用注解创建对象
+@Component（value=”user”）  // <bean  id=”user”  class=””/>
+   public  class User(){
+public void add(){
+  Syso(“add……”)
+}
+}
+
+测试代码
+public class TestAnno(){
+    @Test
+public void testUser(){
+   ApplicationContext context = new ClassPathXmlApplicationContext(“bean1.xml”);
+   User user = (User)Context.getBean(“user”);
+   user.add();
+}
+
+}
+
+注意：创建对象的注解
+@Component
+@Controller  Web层
+@Service    业务层
+@Repository  持久层
+
+创建对象是单实例或多实例
+@Component（value=”user”）  // <bean  id=”user”  class=””/>
+@Scope（value=”prototype”）
+   public  class User(){
+public void add(){
+  Syso(“add……”)
+}
+}
+
+三 用注解方式注入属性
+1  创建Service类和dao 类，在Service中获取dao 对象
+public class UserDao(){
+   public void add(){
+   syso(“dao================”);
+}
+}
+
+Public class UserService(){
+    public void add(){
+   syso(“service================”);
+//在service中得到userdao的对象，才能调用dao层方法
+}
+}
+
+2  用注解创建bean对象，在UserService中定义dao属性，用注解注入bean属性
+@Component(value=”userDao”)
+public class UserDao(){
+   public void add(){
+   syso(“dao================”);
+}
+}
+
+@Service (value=”userService”)
+Public class UserService(){
+    @Autowired
+    UserDao userDao;   //使用注解注入不需要set方法
+    public void add(){
+   syso(“service================”);
+//在service中得到userdao的对象，才能调用dao层方法
+}
+}
+
+注意1. @Autowired是自动注入，如何找到对象？
+UserDao是类名称，找类名称，与value=”userDao”没有关系
+2	@Resource注入属性
+@Component(value=”userDao”)
+public class UserDao(){
+   public void add(){
+   syso(“dao================”);
+}
+}
+
+@Service (value=”userService”)
+Public class UserService(){
+    @Resource(name=”userDao”)  //name值写注解方式创建dao的对象，类似name ,ref
+    UserDao userDao;   //使用注解注入不需要set方法
+    public void add(){
+   syso(“service================”);
+//在service中得到userdao的对象，才能调用dao层方法
+}
+}
+
+四 配置文件和注解混合使用
+1  创建对象操作使用配置文件实现
+2  注入属性使用注解实现
+实例：
+1存在三个类BookService 、BookDao 、OrdersDao
+public  class  BookService{
+    //想得到bookdao 和 ordersdao对象
+    public  void  add(){
+      syso(“serviece…….”);
+}
+
+}
+
+public  class  BookDao{
+  public  void  book(){
+      syso(“bookdao…….”);
+}
+
+}
+public  class  OrdersDao{
+  public void  buy(){
+      syso(“ordersdao…….”);
+}
+}
+
+2 在配置文件中创建对象
+<bean  id-=”bookService”   class=”cn.itcast.xmlanno,BookServiece” ></bean>
+<bean  id-=”bookDao”   class=” cn.itcast.xmlanno. BookDao” ></bean>
+<bean  id-=”ordersDao”   class=” cn.itcast.xmlanno.OrdersDao” ></bean>
+3 在service中添加两个dao属性
+public  class  BookService{
+    //想得到bookdao 和 ordersdao对象
+    @Resource(name=”bookDao”)  // bookDao与xml配置文件的id值相同
+private BookDao  bookDao;
+@ Resource(name=” ordersDao”)
+private OrdersDao  ordersDao;
+    public  void  add(){
+      syso(“serviece…….”);
+      bookDao.book();
+ordersDao. buy ();
+}
+
+}
+
+public  class  BookDao{
+  public  void  book(){
+      syso(“bookdao…….”);
+}
+
+}
+public  class  OrdersDao{
+  public void  buy(){
+      syso(“ordersdao…….”);
+}
+}
+
+
+一AOP概念
+ AOP 采取横向抽取机制，取代了传统纵向继承体系重复性代码
+
+二AOP原理
+第一阶段
+Public  class User(){
+  // 添加用户的方法
+  Public void add(){
+     //添加用户
+     //修改源代码，添加日志逻辑
+}
+}
+
+第二阶段：避免修改源代码，引出机制 纵向抽取机制
+public  class  BaseUser(){
+   //创建日志添加的方法
+   pblic  void  writelog(){
+      //添加日志实现逻辑
+}
+}
+
+public  class  User  extends  BaseUser(){
+  public  void  add(){
+   // 功能扩展，添加日志
+   super. writelog ();
+}
+}
+
+问题：父类的方法名称发生变化，子类调用方法也需要变化
+
+第三阶段：横向抽取机制
+底层实现动态代理方式实现
+（1）JDK动态代理（针对有接口）   使用动态代理方式，创建接口实现类代理对象。创建类的平级对象，这个对象是代理对象，可以实现DaoImpl相同的功能
+ （2）cglib动态代理（没有接口） 创建User类的子类的代理对象，子类中可以调用父类方法super，完成增强。
+
+三 AOP操作术语
+1 连接点 jointpoint ： 类中可以被增强的方法，这些方法就是连接点。
+                     add()  update()  delete()  findAll()方法
+2 切入点 Pointcut  ：  在类中有很多方法被增强，在实际操作中，只是增强add和update方法，实际增强的方法称为切入点。
+3 通知/增强 Advice ： 增强的逻辑，称为增强或通知。比如要拓展日志功能，则这个日志功能称为增强。
+分类：前置增强： 在add方法之前执行
+后置增强： 在add方法之后执行
+异常通知： 方法出现异常
+最终通知： 在后置之后来执行
+环绕通知： 在方法之前和之后执行。比如计算方法执行时间。
+4 切面 ： 把增强应用到切入点的过程，这个过程称为切面。比如在add方法中做日志功能，把日志功能用到add方法，过程是切面。
+
+Public  class  User{
+    public  void  add(){
+}
+
+public  void  update(){
+}
+
+public  void  delete(){
+}
+
+public  void  findAll(){
+}
+
+
+}
+
+
+Spring的AOP操作
+1 在spring里面进行aop操作，使用aspectj实现。
+  Aspectj是一个面向切面的框架，和spring一起使用。
+2 使用aspectj实现 aop有两种方式
+  （1）基于aspectj的xml配置
+  （2）基于aspectj的注解方式
+
+AOP准备操作
+1 导入jar包，除了基本jar包，还有导入aop相关的jar包
+   aopaliance.jar
+   aspectjweaver.jar
+   spring-aop.jar
+   spring-aspects.jar
+2 创建spring 核心配置文件
+导入aop约束，查找aop shema
+
+  3 MyBook是增强类，想实现执行Book的add方法，先输出“前置增强”
+
+public  class  Book(){
+     public  void  add(){
+          Syso(“add………….”)
+}
+}
+
+public  class  MyBook(){
+     public  void  before1(){
+          Syso(“前置增强………….”)
+}
+}
+
+使用表达式配置切入点
+1切入点，实际增强的方法。
+2 常用的表达式
+  execution（< 访问修饰符>？<返回类型><方法名>（< 参数>）<异常>）
+(1)	execution（*  cn.itcast.aop.Book.add(..)）
+(2)	execution（*  cn.itcast.aop.Book.* (..)） // Book类中所有方法
+(3)	execution（*  *.*(..)）  //所有类中，所有方法
+
+3	配置两个类的对象
+<bean   id=”book”  class=”cn.itcast,aop.Book”>
+<bean   id=”myBook”  class=”cn.itcast.aop.MyBook”>
+4	aop配置操作
+<aop:config>
+    // 配置切入点
+    <aop:pointcut expression=”excution(* cn.itcast.aop.Book.add(..) )”  id=”pointcut1”/>
+    // 配置切面,把增加用到方法上，要指定增强
+    <aop:aspect  ref=”myBook”>
+         //  method增强类中使用哪个方法作为前置增强，作用于哪个切入点
+         <aop:before  method=”before1” pointcut-ref=”pointcut1”/>
+    </aop:aspect>
+</aop:config>
+
+Aspect的aop的其他操作
+
+public  class  MyBook(){
+     public  void  before1(){
+          Syso(“前置增强………….”)
+}
+public  void  after1(){
+          Syso(“后置增强………….”)
+}
+
+//环绕通知
+public void  around1(ProceedingJoinPoint  proceedingJoinPoint){
+     syso(“方法之前….”);
+     // 执行被增强的方法
+     proceedingJoinPoint.proceed();
+     syso(“方法之后…..”);
+}
+}
+
+后置通知
+<aop:config>
+    // 配置切入点
+    <aop:pointcut expression=”excution(* cn.itcast.aop.Book.add(..) )”  id=”pointcut1”/>
+    // 配置切面,把增加用到方法上，要指定增强
+    <aop:aspect  ref=”myBook”>
+         //  method增强类中使用哪个方法作为前置增强，作用于哪个切入点
+<aop:before  method=”before1” pointcut-ref=”pointcut1”/>
+        <aop:after-returning  method=”after1” pointcut-ref=”pointcut1”/>
+         </aop:aspect>
+</aop:config>
+
+环绕通知
+<aop:config>
+    // 配置切入点
+    <aop:pointcut expression=”excution(* cn.itcast.aop.Book.add(..) )”  id=”pointcut1”/>
+    // 配置切面,把增加用到方法上，要指定增强
+    <aop:aspect  ref=”myBook”>
+         //  method增强类中使用哪个方法作为前置增强，作用于哪个切入点
+         <aop:around  method=”around1” pointcut-ref=”pointcut1”/>
+    </aop:aspect>
+</aop:config>
+
+Log4j介绍
+1通过log4j可以看到程序运行过程中更详细的信息
+（1）	经常使用log4j查看日志
+2 使用
+（1） 导入log4j Jar包
+（2） 复制log4j配置文件，log4j.properties复制到src下面
+（3） Log4j.rootLogger 日志级别 info debug
+
+
+基于aspect的注解AOP操作
+
+前提：MyBook是增强类，想实现执行Book的add方法，先输出“前置增强”
+public  class  Book(){
+     public  void  add(){
+          Syso(“add………….”)
+}
+}
+
+public  class  MyBook(){
+     public  void  before1(){
+          Syso(“前置增强………….”)
+}
+}
+
+1 在xml文件中创建bean对象
+<bean   id=”book”  class=”cn.itcast,aop.Book”>
+<bean   id=”myBook”  class=”cn.itcast.aop.MyBook”>
+2 在spring核心配置文件中，开启aop操作（类似开启注解扫描包）
+<aop:aspectj-autoproxy></ aop:aspectj-autoproxy >
+3 在增强类上使用注解完成aop操作
+
+@Aspect
+public  class  MyBook(){
+     //在方法上，使用注解完成增强配置
+     @Before(value=”execution(* cn.itcast.aop.Book.add(,,))”)
+     public  void  before1(){
+          Syso(“前置增强………….”)
+}
+}
+
+@Before
+@AferReturning
+@Around
+@AferThrowing

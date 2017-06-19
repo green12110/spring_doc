@@ -1,0 +1,231 @@
+一Spring 相关概念
+1,AOP
+2, IOC（把对象的创建spring管理）
+  基于配置方式
+  基于注解的方式
+
+二Spring一站式
+Web 层使用springMVC
+Service层 使用spring的IOC
+Dao层 spring的jdbcTemplate
+
+三IOC底层原理
+1在Servlet类中通过new UserService创建对象，
+缺陷：耦合性高
+2通过工厂模式解耦和操作，在工厂类中提供返回UserService对象的静态方法
+  缺陷：Servlet与工厂类耦合性高
+  
+IOC实现使用的技术(降低类之间的耦合度)
+  1 xml配置文件
+  2 dom4j解析xml
+  3 工厂设计模式
+  4 反射
+   
+前提：有两个类 UserServlet 和 UserService
+第一步：在UserServlet中创建UserService对象
+在xml配置文件中，配置需要创建的对象类
+<bean  id =”userSerive” class=”cn.Itcast.UserService”>
+第二步:创建工厂类，dom4j解析配置文件+反射
+         1解析配置文件，根据ID值userService，得到id对应的class属性。
+         String classValue = “class属性值”
+         2 根据反射创建类对象
+          Class clazz = Class.forNam(classValue)
+         3 创建类对象
+           UserService service = clazz.newInstance();
+          Return service
+第三步：在UserServlet中，创建对象。Factory.getService()
+ 
+
+四 IOC的入门案例
+第一步 导入jar包，把jar包复制到WEB-INF/lib下面
+       核心jar包 beans  core   context  spEL
+       日志jar包  logging  log4j
+第二步 创建类，在类里面创建方法
+       User类，里面有add（）方法
+第三步 创建spring配置文件，配置创建类
+（1）	spring核心配置文件名称和位置不是固定的，建议放在 src下面，名字为applicationContext.xml
+（2）	引入schema约束，到docs/spring-framework-reference/html文件夹下面xsd-configuration.html文件，到文档的最后复制scheme约束
+（3）	配置对象
+              <bean  id =”user” class=”cn.Itcast.User”></bean>
+
+第四步 写代码测试对象的创建
+     Public class TestIOC(){
+   @Test
+   Public void  testUser(){
+    //加载spring配置文件，根据创建对象
+    ApplicationContext context = new ClassPathXmlApplicationContext(“bean.xml”);
+    //得到配置创建的对象
+   User user =  (User)context.getBean(“user”);
+    System.out.printlin(user);
+User.add()
+}
+
+}
+
+五 配置文件没有提示的问题
+1 把scheme引入到eclipse中
+（1）复制约束的路径在beans.xml中
+     http://www.springframework.org/shema/beans/spring-beans.xsd
+eclipse 中 window->preferences->搜索xml Catalog->点击add
+key写复制的路径http://www.springframework.org/shema/beans/spring-beans.xsd
+location 选择本地scheme/beans/spring-beans-4.2.xsd
+key type 选择 schema location
+
+六 spring的bean管理（xml配置文件方式）
+1在spring里面通过配置文件创建对象
+2 bean实例化三种方式
+  第一种 使用类的无参构造创建(重点)
+      <bean  id=”user”  class=”cn.itcast.User”></bean>
+      上面的这种方式，是找User类的无参构造。如果User类中没有无参构造方法，则会出现异常
+  第二种 使用静态工厂创建
+      静态工厂：在类中创建static方法，返回对象
+       Bean2Factory类 ，里面静态方法getBean2()
+       <Bean  id=”bean2” class=”cn.itcast.bean.Bean2Factory” factory-method=”getBean2”>
+  第三种 使用实例工厂创建
+实例工厂：在类中创建不是static方法，返回对象
+Bean3Factory类 ，里面普通方法getBean3()
+//先获取实例工厂对象
+     <bean  id=”bean3Factory” class=” cn.itcast.bean.Bean2Factory”></bean>
+     <bean  id=”bean3” factory-bean=” bean3Factory” fatory-mothod=” getBean3”> </bean>
+
+3	bean 标签的常用属性
+（1）	id属性：起名字，任意命名。根据id值得到配置对象
+（2）	class属性：对象所在类的全路径
+（3）	name 属性：功能与id相同，name属性值可以包含特殊符号# %
+（4）	scope 属性： 
+singleton ：默认值、单例，测试获取相同id的Bean的对象，发现实例地址值相同
+prototype ：多实例，应用场景action的是多实例对象。测试获取相同id的Bean的对象，测试发现User地址值不同
+request  ：创建对象，把对象放到request域中
+session  ：创建对象，把对象放到session域中
+globalSession ：创建对象，把对象放到globalsession域中
+              单点登录（用redis数据库）
+
+4	属性注入
+创建对象的时候，向类的属性里面设置值。
+属性注入的方式：
+（1）	Set方法（重点）
+public class Book(){
+   private String bookname;
+   public void setBookname(String bookname){
+   This.bookname = bookname;
+}
+}
+   
+ <bean   id=”book”  class=”cn.itcast. Book”>
+  //property注入属性值,name属性值是类中对应的属性名，value是具体值
+   <property name=”bookname” value=”山海经”></property>
+</bean>
+（2）	有参构造
+public Class  PropertyDemo(){
+   private String username;
+   public PropertyDemo(String username){
+      this.username = username;
+}
+}
+
+<bean   id=”demo1”  class=”cn.itcast. PropertyDemo”>
+     //使用有参构造来注入
+     <constructor-arg  name=”username”  value=”小王小马”></constructor-arg>
+</bean>
+
+（3）	使用接口注入
+public Interface Dao(){
+   public void delete(String name)
+}
+
+public class DaoImpl  implements Dao(){
+private String name;
+public void delete(String name){
+   this.name = name;
+}
+}
+
+Spring框架支持set方法注入和有参构造注入
+
+
+5 注入对象类型的属性（重点）
+1 创建Service类和dao 类，在Service中获取dao 对象
+public class UserDao(){
+   public void add(){
+   syso(“dao================”);
+}
+}
+
+Public class UserService(){
+    public void add(){
+   syso(“service================”);
+//在service中得到userdao的对象，才能调用dao层方法
+}
+}
+
+具体实现
+（1）	在UserService里面把UserDao作为类型属性
+（2）	生成UserDao的set方法
+（3）	在配置文件中，完成属性注入
+<bean  id=”userDao” class=”cn.itecat.ioc,UserDao”></bean>
+  <bean  id=”userService” class=”cn.itcast.ioc.UserServiece”>
+     // 注入dao对象，name：写UserService的属性名，value：现在是对象，不能写value应该用ref属性（UserDao的id值）
+     <property name=” userDao”  ref=” userDao”></ property>
+  </bean>
+
+6 P名称空间的注入
+   配置文件中 beans 标签添加属性 xmlns:p=http://www.springframework,org/schema/p
+   P:属性名=属性值
+    Person类中pname属性
+   <bean  id=”person”  class=”cn.itcast.property.Person”  p:panme=”Lucy”></bean>
+
+
+7 注入复杂类型属性  (数组，List Map Properties)
+   public class Person(){
+      private String[]  arrs;
+      private List<String>  list;
+      private Map<String,String> map;
+      private Properties properties;
+      // 各种set方法，省略……
+}
+
+<bean   id=”person” class=”cn.itcast.property.Person”>
+//数组
+<property name=”arrs”>
+   <list>
+      <value>小王1</value>
+<value>小王2</value>
+< value>小王3</value>
+</list>
+</property>
+
+//list中注入
+<property name=”list”>
+   <list>
+      <value>小奥1</value>
+<value>小奥2</value>
+< value>小奥3</value>
+</list>
+</property>
+
+// 向map中注入
+<property name=”map”>
+   <map>
+      <entry  key=”001”  value=”Lucy”></ entry >
+<entry  key=”002”  value=”mary”></ entry >
+<entry  key=”002”  value=”tom”></ entry >
+</ map >
+</property>
+
+// 向properties注入
+<property name=”properties”>
+   <props>
+      <prop  key=”driverclass”>com.mysql.jdbc.Driver</prop>
+<prop  key=”username”>com.mysql.jdbc.Driver</prop>
+   </props>
+</property>
+</bean>
+
+
+Spring 整合web项目
+//加载spring配置文件，new 对象，效率低
+ ApplicationContext context = new ClassPathXmlApplcationContext(“bean.xml”);
+解决：把加载配置文件和创建对象的过程，在服务器启动的时候完成
+实现对象：
+（1）	ServletContext对象
+（2）	监听器
