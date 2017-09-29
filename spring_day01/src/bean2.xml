@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="book" class="cn.itcast.inject.Book">
+      <!-- 通过set注入属性值：name是对应类 的属性 ，value是属性值 -->
+      <property name="bookname" value="山海经"></property>
+    </bean>
+    
+    <bean id="userDemo" class="cn.itcast.inject.UserDemo">
+       <!-- 通过有参构造注入属性值 -->
+       <constructor-arg name="username" value="小王小马"></constructor-arg>
+    </bean>
+    
+    <!-- 注入引用类型属性 （对象）-->
+    <bean id="userDao" class="cn.itcast.inject.UserDao"></bean>
+    <bean id="userService" class="cn.itcast.inject.UserService">
+       <property name="UserDao" ref="userDao"></property>
+    </bean>
+ 
+    
+
+</beans>

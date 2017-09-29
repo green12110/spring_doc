@@ -1,0 +1,4 @@
+#Tomcat publish data
+#Fri Sep 29 22:19:59 GMT+08:00 2017
+org.eclipse.jst.jee.server\:/binary\:D\:\\spring_doc\\SPMVC_TEST01\\WebContent\\WEB-INF\\lib\\spring-web-4.1.6.RELEASE.jar=WEB-INF/lib/spring-web-4.1.6.RELEASE.jar
+org.eclipse.jst.jee.server\:/binary\:D\:\\spring_doc\\SPMVC_TEST01\\WebContent\\WEB-INF\\lib\\log4j-core-2.0-rc1.jar=WEB-INF/lib/log4j-core-2.0-rc1.jar

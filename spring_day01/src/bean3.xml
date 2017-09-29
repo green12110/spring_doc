@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+ 
+    <!-- 注入引用类型属性1 -->
+    <bean id="person" class="cn.itcast.inject2.Person">
+       <property name="arrs">
+          <list>
+             <value>小王1</value>
+             <value>小王1</value>
+             <value>小王1</value>
+             <value>小王1</value>
+          </list>
+          </property>
+          <property name="list">
+             <list>
+                <value>小奥1</value>
+                <value>小奥2</value>
+                <value>小奥3</value>
+             </list>
+          </property>
+          <property name="map">
+             <map>
+                <entry key="001" value="Lucy"></entry>
+                <entry key="002" value="Marry"></entry>
+                <entry key="003" value="tom"></entry>
+             </map>
+          </property>
+          <property name="properties">
+            <props>
+               <prop key="driverclass">com.mysql.jdbc.Driver</prop>
+               <prop key="username">com.mysql.jdbc.Driver</prop>
+            </props>
+          </property>
+          
+      
+    </bean>
+    
+     <!-- 注入引用类型属性 2-->
+     <bean id="department" class="cn.itcast.inject2.Department">
+        <property name="name" value="开发部"></property>
+        <!-- 数组 -->
+        <property name="empName">
+           <list>
+              <value>马龙</value>
+              <value>许昕</value>
+              <value>樊振东</value>
+           </list>
+        </property>
+       
+       <!-- list类型 --> 
+        <property name="empList">
+           <list>
+               <ref bean="emp1"/>
+               <ref bean="emp2"/>
+               <ref bean="emp2"/>
+           </list>
+        </property>
+        
+        <!-- Set -->
+        <property name="empsets">
+          <set>
+               <ref bean="emp1"/>
+               <ref bean="emp2"/>
+               <ref bean="emp2"/>
+          </set>
+        </property>
+        
+        <!-- map -->
+        <property name="empMaps">
+           <map>
+              <entry key="11" value-ref="emp1"></entry>
+              <entry key="22" value-ref="emp2"></entry>
+              <entry key="22" value-ref="emp2"></entry>
+           </map>
+        </property>    
+     </bean>
+     
+     
+     
+     <bean id="emp1" class="cn.itcast.inject2.Employee">
+        <property name="id" value="001"></property>
+        <property name="name" value="北京"></property>
+     </bean>
+     
+      <bean id="emp2" class="cn.itcast.inject2.Employee">
+        <property name="id" value="002"></property>
+        <property name="name" value="上海"></property>
+     </bean>
+     
+      <bean id="emp3" class="cn.itcast.inject2.Employee">
+        <property name="id" value="003"></property>
+        <property name="name" value="大连"></property>
+     </bean>
+
+</beans>

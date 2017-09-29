@@ -1,0 +1,7 @@
+<classpath>
+  <container id="SPMVC_TEST01!org.eclipse.jst.j2ee.internal.web.container">
+    <entry id="D:/spring_doc/SPMVC_TEST01/WebContent/WEB-INF/lib/spring-webmvc-3.2.0.RELEASE.jar">
+      <source-attachment-path>F:/Java shiPin/springMV—传智播客/day01/res/jar包/spring3.2.0源码/spring3.2.0源码/spring-webmvc-3.2.0.RELEASE-sources.jar</source-attachment-path>
+    </entry>
+  </container>
+</classpath>

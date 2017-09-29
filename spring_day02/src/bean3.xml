@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"> <!-- bean definitions here -->
+        
+        <!-- 配置bean -->
+        <bean id="book" class="cn.itcast.aspect.xml.Book"/>
+        <bean id="mybook" class="cn.itcast.aspect.xml.Mybook"/>
+        
+        <!-- aop的配置 -->
+        <aop:config>
+           <!-- 配置切入点 -->
+           <aop:pointcut expression="execution(* cn.itcast.aspect.xml.Book.add(..))" id="bookpointcut"/>
+           <!-- 配置切入面，把Mybook的before1方法增加到切入点上 -->
+           <aop:aspect ref="mybook">
+              <aop:before method="before1" pointcut-ref="bookpointcut"/>
+              <aop:after-returning method="after1" pointcut-ref="bookpointcut"/>
+              <aop:around method="around1" pointcut-ref="bookpointcut"/>
+           </aop:aspect>
+           
+        </aop:config>
+
+</beans>
